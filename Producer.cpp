@@ -1,18 +1,11 @@
-#include <thread>
-#include <cstdlib>
-#include <ctime>
 #include "Producer.h"
-#include <vector>
 
-// Function to simulate a producer producing items
-void producerFunction(int id, int numProducts, BoundedBuffer& buffer) {
-    srand(time(0) + id); // Seed the random number generator
-    std::vector<std::string> types = {"SPORTS", "NEWS", "WEATHER"}; // Types of news
-
-    for (int i = 0; i < numProducts; ++i) {
-        std::string type = types[rand() % types.size()]; // Randomly select a type
-        std::string message = "Producer " + std::to_string(id) + " " + type + " " + std::to_string(i); // Create message
-        buffer.insert(message); // Insert message into buffer
+void producerFunction(int producerId, int numberOfProducts, BoundedBuffer &buffer) {
+    for (int i = 0; i < numberOfProducts; ++i) {
+        std::string item = "Producer " + std::to_string(producerId) + " " + std::to_string(i);
+        std::cout << "Generated: " << item << std::endl;
+        buffer.insert(item);
     }
-    buffer.insert("DONE"); // Insert 'DONE' message after producing all items
+    buffer.insert("DONE");
+    std::cout << "Producer " << producerId << " finished." << std::endl;
 }

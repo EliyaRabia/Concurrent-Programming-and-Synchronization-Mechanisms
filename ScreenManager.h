@@ -1,4 +1,3 @@
-// ScreenManager.h
 #ifndef SCREENMANAGER_H
 #define SCREENMANAGER_H
 
@@ -6,4 +5,4 @@
 
 void screenManagerFunction(BoundedBuffer& buffer);
 
-#endif // SCREENMANAGER_H
+#endif

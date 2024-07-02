@@ -1,63 +1,79 @@
-// main.cpp
+#include <iostream>
+#include <vector>
+#include <thread>
 #include "BoundedBuffer.h"
-#include "Parser.h"
 #include "Producer.h"
 #include "Dispatcher.h"
 #include "CoEditor.h"
 #include "ScreenManager.h"
-#include <iostream>
-#include <thread>
-#include <vector>
+#include "Parser.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " config.txt" << std::endl;
-        return 1; // Exit if configuration file is not provided
+        std::cerr << "Usage: " << argv[0] << " <config file>" << std::endl;
+        return 1;
     }
 
-    Config config = parseConfig(argv[1]); // Parse the configuration file
-    
-    std::vector<BoundedBuffer*> producerBuffers;
-    for (const auto& producer : config.producers) {
-        producerBuffers.push_back(new BoundedBuffer(producer.queueSize)); // Create producer buffers
+    Config config;
+    try {
+        config = parseConfig(argv[1]);
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
     }
-    
-    // Create co-editor and screen manager buffers
-    BoundedBuffer sportsBuffer(config.coEditorQueueSize);
-    BoundedBuffer newsBuffer(config.coEditorQueueSize);
-    BoundedBuffer weatherBuffer(config.coEditorQueueSize);
+
+    if (config.producers.size() != 3 || config.coEditorQueueSize <= 0) {
+        std::cerr << "Error in config file format or content." << std::endl;
+        return 1;
+    }
+
+    BoundedBuffer buffer1(config.producers[0].queueSize);
+    BoundedBuffer buffer2(config.producers[1].queueSize);
+    BoundedBuffer buffer3(config.producers[2].queueSize);
+    BoundedBuffer coEditorBuffer(config.coEditorQueueSize);
     BoundedBuffer screenBuffer(config.coEditorQueueSize);
-    
-    std::vector<std::thread> producerThreads;
-    for (size_t i = 0; i < config.producers.size(); ++i) {
-        producerThreads.emplace_back(producerFunction, config.producers[i].id, config.producers[i].numberOfProducts, std::ref(*producerBuffers[i])); // Create producer threads
-    }
 
-    // Create dispatcher and co-editor threads
-    std::thread dispatcherThread(dispatcherFunction, std::ref(producerBuffers), std::ref(sportsBuffer), std::ref(newsBuffer), std::ref(weatherBuffer));
-    
-    std::thread sportsEditorThread(coEditorFunction, std::ref(sportsBuffer), std::ref(screenBuffer));
-    std::thread newsEditorThread(coEditorFunction, std::ref(newsBuffer), std::ref(screenBuffer));
-    std::thread weatherEditorThread(coEditorFunction, std::ref(weatherBuffer), std::ref(screenBuffer));
+    std::vector<BoundedBuffer*> producerBuffers = {&buffer1, &buffer2, &buffer3};
 
-    // Create screen manager thread
-    std::thread screenManagerThread(screenManagerFunction, std::ref(screenBuffer));
+    std::thread producer1(producerFunction, 1, config.producers[0].numberOfProducts, std::ref(buffer1));
+    std::thread producer2(producerFunction, 2, config.producers[1].numberOfProducts, std::ref(buffer2));
+    std::thread producer3(producerFunction, 3, config.producers[2].numberOfProducts, std::ref(buffer3));
+
+    std::thread dispatcher(dispatcherFunction, std::ref(producerBuffers), std::ref(coEditorBuffer));
     
-    // Join all threads
-    for (auto& t : producerThreads) {
-        t.join();
-    }
-    
-    dispatcherThread.join();
-    sportsEditorThread.join();
-    newsEditorThread.join();
-    weatherEditorThread.join();
-    screenManagerThread.join();
-    
-    // Clean up dynamically allocated buffers
+    std::thread coEditor1(coEditorFunction, std::ref(coEditorBuffer), std::ref(screenBuffer));
+    std::thread coEditor2(coEditorFunction, std::ref(coEditorBuffer), std::ref(screenBuffer));
+    std::thread coEditor3(coEditorFunction, std::ref(coEditorBuffer), std::ref(screenBuffer));
+
+    std::thread screenManager(screenManagerFunction, std::ref(screenBuffer));
+
+    producer1.join();
+    producer2.join();
+    producer3.join();
+
+    // Signal end of production to dispatcher
+    std::cout << "Producers finished. Signaling dispatcher." << std::endl;
     for (auto buffer : producerBuffers) {
-        delete buffer;
+        buffer->insert("DONE");
     }
+
+    dispatcher.join();
+
+    // Signal end of processing to co-editors
+    std::cout << "Dispatcher finished. Signaling co-editors." << std::endl;
+    for (int i = 0; i < 3; ++i) {
+        coEditorBuffer.insert("DONE");
+    }
+
+    coEditor1.join();
+    coEditor2.join();
+    coEditor3.join();
+
+    // Signal end of processing to screen manager
+    std::cout << "Co-Editors finished. Signaling screen manager." << std::endl;
+    screenBuffer.insert("DONE");
+
+    screenManager.join();
 
     return 0;
 }

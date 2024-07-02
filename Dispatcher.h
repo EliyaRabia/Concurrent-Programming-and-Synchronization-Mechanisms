@@ -1,13 +1,9 @@
-// Dispatcher.h
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-#include "BoundedBuffer.h"
 #include <vector>
+#include "BoundedBuffer.h"
 
-void dispatcherFunction(std::vector<BoundedBuffer*>& producerBuffers, 
-                        BoundedBuffer& sportsBuffer, 
-                        BoundedBuffer& newsBuffer, 
-                        BoundedBuffer& weatherBuffer);
+void dispatcherFunction(std::vector<BoundedBuffer*>& buffers, BoundedBuffer& coEditorBuffer);
 
-#endif // DISPATCHER_H
+#endif

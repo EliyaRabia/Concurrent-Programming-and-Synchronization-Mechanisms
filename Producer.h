@@ -2,8 +2,8 @@
 #define PRODUCER_H
 
 #include "BoundedBuffer.h"
+#include <iostream>
 
-// Function to simulate a producer producing items
-void producerFunction(int id, int numProducts, BoundedBuffer& buffer);
+void producerFunction(int producerId, int numberOfProducts, BoundedBuffer &buffer);
 
 #endif // PRODUCER_H
