@@ -2,13 +2,14 @@
 #include <iostream>
 
 void screenManagerFunction(BoundedBuffer& buffer) {
-    while (true) {
-        std::string item = buffer.remove();
-        if (item == "DONE") {
-            std::cout << "ScreenManager received DONE signal." << std::endl;
-            break;
+    int doneCount = 0; // Counter for completed co-editors
+    while (doneCount < 3) { // Loop until all three co-editors are done
+        std::string message = buffer.remove(); // Remove message from buffer
+        if (message == "DONE") {
+            ++doneCount; // Increment done counter
+        } else {
+            std::cout << message << std::endl; // Print message to the screen
         }
-        std::cout << "ScreenManager received: " << item << std::endl;
-        std::cout << "Producer " << item << std::endl;
     }
+    std::cout << "DONE" << std::endl; // Print final 'DONE' message
 }

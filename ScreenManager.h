@@ -5,4 +5,4 @@
 
 void screenManagerFunction(BoundedBuffer& buffer);
 
-#endif
+#endif // SCREENMANAGER_H

@@ -4,6 +4,9 @@
 #include <vector>
 #include "BoundedBuffer.h"
 
-void dispatcherFunction(std::vector<BoundedBuffer*>& buffers, BoundedBuffer& coEditorBuffer);
+void dispatcherFunction(std::vector<BoundedBuffer*>& producerBuffers, 
+                        BoundedBuffer& sportsBuffer, 
+                        BoundedBuffer& newsBuffer, 
+                        BoundedBuffer& weatherBuffer);
 
-#endif
+#endif // DISPATCHER_H

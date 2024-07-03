@@ -21,4 +21,4 @@ private:
     std::condition_variable cond;
 };
 
-#endif
+#endif // BOUNDED_BUFFER_H

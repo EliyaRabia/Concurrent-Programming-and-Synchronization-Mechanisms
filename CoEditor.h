@@ -3,6 +3,6 @@
 
 #include "BoundedBuffer.h"
 
-void coEditorFunction(BoundedBuffer& inputBuffer, BoundedBuffer& screenBuffer);
+void coEditorFunction(BoundedBuffer& inputBuffer, BoundedBuffer& outputBuffer);
 
-#endif
+#endif // COEDITOR_H
