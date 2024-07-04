@@ -1,4 +1,6 @@
 #include "Dispatcher.h"
+#include <vector>
+#include <string>
 
 void dispatcherFunction(std::vector<BoundedBuffer*>& producerBuffers, 
                         BoundedBuffer& sportsBuffer, 
