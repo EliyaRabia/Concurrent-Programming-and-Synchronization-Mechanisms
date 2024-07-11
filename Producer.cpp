@@ -1,18 +1,23 @@
-#include <thread>
-#include <cstdlib>
-#include <ctime>
 #include "Producer.h"
 #include <vector>
+#include <string>
+#include <cstdlib>
+#include <map>
 
-// Function to simulate a producer producing items
-void producerFunction(int id, int numProducts, BoundedBuffer& buffer) {
-    srand(time(0) + id); // Seed the random number generator
-    std::vector<std::string> types = {"SPORTS", "NEWS", "WEATHER"}; // Types of news
+using std::vector;
+using std::string;
+using std::map;
+using std::to_string;
 
-    for (int i = 0; i < numProducts; ++i) {
-        std::string type = types[rand() % types.size()]; // Randomly select a type
-        std::string message = "Producer " + std::to_string(id) + " " + type + " " + std::to_string(i); // Create message
-        buffer.insert(message); // Insert message into buffer
+void producerFunction(int producerId, int numberOfProducts, BoundedBuffer& buffer) {
+    vector<string> types = {"SPORTS", "NEWS", "WEATHER"};
+    map<string, int> counts = {{"SPORTS", 0}, {"NEWS", 0}, {"WEATHER", 0}};
+    
+    for (int i = 0; i < numberOfProducts; ++i) {
+        string type = types[rand() % types.size()]; // Randomly select a type
+        string item = "Producer " + to_string(producerId) + " " + type + " " + to_string(counts[type]);
+        counts[type]++; // Increment the count for the selected type
+        buffer.insert(item);
     }
-    buffer.insert("DONE"); // Insert 'DONE' message after producing all items
+    buffer.insert("DONE");
 }

@@ -1,4 +1,3 @@
-// ScreenManager.h
 #ifndef SCREENMANAGER_H
 #define SCREENMANAGER_H
 

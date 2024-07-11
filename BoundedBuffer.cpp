@@ -1,32 +1,38 @@
-// BoundedBuffer.cpp
 #include "BoundedBuffer.h"
 
-// Constructor to initialize buffer with a given size
-BoundedBuffer::BoundedBuffer(int size) : maxSize(size), count(0), in(0), out(0) {
-    buffer.resize(size); // Resize the buffer
-}
+using std::queue;
+using std::mutex;
+using std::unique_lock;
+using std::condition_variable;
+using std::string;
+using std::optional;
+using std::lock_guard;
 
-// Method to insert an item into the buffer
+BoundedBuffer::BoundedBuffer(size_t size) : maxSize(size) {}
+
 void BoundedBuffer::insert(const std::string& item) {
-    std::unique_lock<std::mutex> lock(mtx); // Lock the mutex
-    not_full.wait(lock, [this]() { return count < maxSize; }); // Wait if buffer is full
-
-    buffer[in] = item; // Insert item at 'in' position
-    in = (in + 1) % maxSize; // Update 'in' position
-    count++; // Increase item count
-
-    not_empty.notify_all(); // Notify that buffer is not empty
+    unique_lock<mutex> lock(mtx);
+    cond.wait(lock, [this]() { return buffer.size() < maxSize; });
+    buffer.push(item);
+    cond.notify_all();
 }
 
-// Method to remove an item from the buffer
 std::string BoundedBuffer::remove() {
-    std::unique_lock<std::mutex> lock(mtx); // Lock the mutex
-    not_empty.wait(lock, [this]() { return count > 0; }); // Wait if buffer is empty
+    unique_lock<mutex> lock(mtx);
+    cond.wait(lock, [this]() { return !buffer.empty(); });
+    string item = buffer.front();
+    buffer.pop();
+    cond.notify_all();
+    return item;
+}
 
-    std::string item = buffer[out]; // Get item from 'out' position
-    out = (out + 1) % maxSize; // Update 'out' position
-    count--; // Decrease item count
-
-    not_full.notify_all(); // Notify that buffer is not full
-    return item; // Return the removed item
+std::optional<std::string> BoundedBuffer::tryRemove() {
+    lock_guard<mutex> lock(mtx);
+    if (buffer.empty()) {
+        return std::nullopt; // Return an empty optional if the buffer is empty
+    }
+    string item = buffer.front();
+    buffer.pop();
+    cond.notify_all();
+    return item;
 }

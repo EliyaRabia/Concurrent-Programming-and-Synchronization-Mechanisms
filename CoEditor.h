@@ -1,4 +1,3 @@
-// CoEditor.h
 #ifndef COEDITOR_H
 #define COEDITOR_H
 
