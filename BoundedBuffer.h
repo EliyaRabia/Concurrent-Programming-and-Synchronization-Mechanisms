@@ -5,6 +5,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+#include <optional>
 
 class BoundedBuffer {
 public:
@@ -13,6 +14,8 @@ public:
     void insert(const std::string& item);
 
     std::string remove();
+
+    std::optional<std::string> tryRemove(); // Non-blocking remove
 
 private:
     std::queue<std::string> buffer;

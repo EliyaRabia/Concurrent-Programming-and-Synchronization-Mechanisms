@@ -2,14 +2,18 @@
 #include <chrono>
 #include <thread>
 
+using std::string;
+using std::chrono::milliseconds;
+using std::this_thread::sleep_for;
+
 void coEditorFunction(BoundedBuffer& inputBuffer, BoundedBuffer& outputBuffer) {
     while (true) {
-        std::string item = inputBuffer.remove();
+        string item = inputBuffer.remove();
         if (item == "DONE") {
             outputBuffer.insert("DONE");
             break;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simulate editing delay
+        sleep_for(milliseconds(100));
         outputBuffer.insert(item);
     }
 }

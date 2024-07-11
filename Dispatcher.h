@@ -1,8 +1,8 @@
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
-#include <vector>
 #include "BoundedBuffer.h"
+#include <vector>
 
 void dispatcherFunction(std::vector<BoundedBuffer*>& producerBuffers, 
                         BoundedBuffer& sportsBuffer, 
