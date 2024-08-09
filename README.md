@@ -52,14 +52,6 @@ For each type of possible message, there is a Co-Editor that receives the messag
 
 The Screen Manager displays the strings it receives via the Co-Editors' queue to the screen (standard output). After printing all messages to the screen and receiving three "DONE" messages, the Screen Manager displays a 'DONE' statement.
 
-### System Design
-
-The system should be implemented according to the following chart:
-
-![chart](image.png)
-
-Three producers communicate with the dispatcher via their Producer queues. The Dispatcher communicates with the Co-Editors via three queues corresponding to the three types of messages. The Co-Editors communicate with the Screen-Manager via a single shared queue, and the Screen-Manager displays the system's output.
-
 ### Bounded Buffer
 
 The Producer queues in this assignment and the Co-Editors' shared queue are a bounded buffer that supports the following operations:
